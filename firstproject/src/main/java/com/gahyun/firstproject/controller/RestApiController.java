@@ -1,5 +1,7 @@
 package com.gahyun.firstproject.controller;
 
+import javax.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,6 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import com.gahyun.firstproject.dto.request.ExampleDto;
+import com.gahyun.firstproject.dto.response.ExampleResponseDto;
+
 
 class ParamDto {
     private String data1;
@@ -102,7 +108,7 @@ public class RestApiController {
 
     // @RequestBody 로 Post, Put, Patch Method에서 데이터 받기
     // Request Body 에 있는 데이터를 받기 위한 어노테이션
-    // POST : http://localhost:4040/api/request-body -> body에 row 에서
+    // POST : http://localhost:4040/api/request-body -> body에 row에서(JSON)
     @PostMapping("request-body")
     public ResponseEntity<ParamDto> requestBody(
        // @RequestBody String data
@@ -110,7 +116,26 @@ public class RestApiController {
     ) {
         return ResponseEntity.status(408).body(dto);
     }
-    
+
+    // POST : http://localhost:4040/api/lombok -> body에 row에서(JSON)
+    @PostMapping("lombok")
+    public ExampleResponseDto lombok(
+            @Valid @RequestBody ExampleDto requestBody
+    ) {
+            String data1 = requestBody.getParameter1();
+            String data2 = requestBody.getParameter2();
+            String data3 = requestBody.getParameter3();
+         
+            // ExampleResponseDto responseData = 
+            // new ExampleResponseDto(data1, data2, data3);
+
+            ExampleResponseDto responseData = 
+                ExampleResponseDto.builder().data1(data1).build();
+
+            System.out.println(responseData.toString());
+
+            return responseData;
+    }
 
 
 
