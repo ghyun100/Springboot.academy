@@ -41,14 +41,14 @@ public class BoardController {
     }
 
    // 2. 특정 게시물 조회 
-   @GetMapping("/{boardNumber}")
-   public ResponseEntity<? super GetBoardResponseDto> getBoard(
-       @PathVariable("boardNumber") Integer boardNumber
-   ) {
-       ResponseEntity<? super GetBoardResponseDto> response = 
-           boardService.getBoard(boardNumber);
-       return response;
-   }
+    @GetMapping("/{boardNumber}")
+    public ResponseEntity<? super GetBoardResponseDto> getBoard(
+        @PathVariable("boardNumber") Integer boardNumber
+    ) {
+        ResponseEntity<? super GetBoardResponseDto> response = 
+            boardService.getBoard(boardNumber);
+        return response;
+    }
 
     // 3. 게시물 목록 조회 
     @GetMapping("/list")

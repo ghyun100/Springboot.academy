@@ -18,6 +18,7 @@ import com.gahyun.board.entity.BoardEntity;
 import com.gahyun.board.entity.CommentEntity;
 import com.gahyun.board.entity.LikyEntity;
 import com.gahyun.board.entity.UserEntity;
+import com.gahyun.board.entity.resultSet.BoardListResultSet;
 import com.gahyun.board.repository.BoardRepository;
 import com.gahyun.board.repository.CommentRepository;
 import com.gahyun.board.repository.LikyRepository;
@@ -40,10 +41,10 @@ public class BoardServiceImplement implements BoardService {
         CommentRepository commentRepository,
         LikyRepository likyRepository
     ) {
-       this.userRepository = userRepository;
-       this.boardRepository = boardRepository;
-       this.commentRepository = commentRepository;
-       this.likyRepository = likyRepository;
+        this.userRepository = userRepository;
+        this.boardRepository = boardRepository;
+        this.commentRepository = commentRepository;
+        this.likyRepository = likyRepository;
     }
 
     @Override
@@ -55,8 +56,8 @@ public class BoardServiceImplement implements BoardService {
 
         try{
              // TODO : 존재하지 않는 유저 오류 반환
-             boolean existedUserEmail = userRepository.existsByEmail(boardWriterEmail);
-             if (!existedUserEmail) {
+                boolean existedUserEmail = userRepository.existsByEmail(boardWriterEmail);
+                if (!existedUserEmail) {
                 ResponseDto errorBody = new ResponseDto("NU", "NonExist user Email");
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorBody);
             }
@@ -74,7 +75,7 @@ public class BoardServiceImplement implements BoardService {
         }
         return ResponseEntity.status(HttpStatus.OK).body(body);
          // TODO : 성공 반환
-      
+        
     }
 
     @Override
@@ -114,15 +115,35 @@ public class BoardServiceImplement implements BoardService {
 
     @Override
     public ResponseEntity<? super GetBoardListResponseDto> getBoardList() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getBoardList'");
+            GetBoardListResponseDto body = null;
+
+        try {
+            List<BoardListResultSet> resultSet = boardRepository.getList();
+            body = new GetBoardListResponseDto(resultSet);
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return CustomResponse.databaseError();
+        }
+        
+        return ResponseEntity.status(HttpStatus.OK).body(body);
     }
 
     @Override
     public ResponseEntity<? super GetBoardListResponseDto> getBoardTop3() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'getBoardTop3'");
+        GetBoardListResponseDto body = null;
+
+        try {
+            List<BoardListResultSet> resultSet = boardRepository.getTop3List();
+            body = new GetBoardListResponseDto(resultSet);
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return CustomResponse.databaseError();
+        }
+        
+        return ResponseEntity.status(HttpStatus.OK).body(body);
     }
+    
 
     @Override
     public ResponseEntity<ResponseDto> patchBoard(PatchBoardRequestDto dto) {
@@ -169,9 +190,35 @@ public class BoardServiceImplement implements BoardService {
 
     @Override
     public ResponseEntity<ResponseDto> deleteBoard(String userEmail, Integer boardNumber) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'deleteBoard'");
+        
+        
+
+        try {
+            if (boardNumber == null) return CustomResponse.validationFaild();
+
+            // 존재하지 않는 게시물 번호 반환
+            BoardEntity boardEntity = boardRepository.findByBoardNumber(boardNumber);
+            if (boardEntity == null) return CustomResponse.notExsitBoardNumber();
+
+            // 존재하지 않는 유저 이메일 반환
+            boolean existedUserEmail = userRepository.existsByEmail(userEmail);
+            if (!existedUserEmail) return CustomResponse.notExsitUserEmail();
+
+            // 권한 없음 반환
+            boolean equalWriter = boardEntity.getWriterEmail().equals(userEmail);
+            if (!equalWriter) return CustomResponse.noPermissions();
+
+            commentRepository.deleteByBoardNumber(boardNumber);
+            likyRepository.deleteByBoardNumber(boardNumber);
+            boardRepository.delete(boardEntity);
+
+        } catch (Exception exception) {
+            exception.printStackTrace();
+            return CustomResponse.databaseError();
+        }
+
+        return CustomResponse.success();
+
     }
 
-    
 }
