@@ -4,6 +4,7 @@ import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -14,28 +15,29 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gahyun.board.dto.request.board.PatchBoardRequestDto;
+import com.gahyun.board.dto.request.board2.PatchBoardRequestDto2;
+import com.gahyun.board.dto.request.board2.PostBoardRequestDto2;
 import com.gahyun.board.dto.response.ResponseDto;
 import com.gahyun.board.dto.response.board.GetBoardListResponseDto;
 import com.gahyun.board.dto.response.board.GetBoardResponseDto;
 import com.gahyun.board.service.BoardService;
 
-@RestController
-@RequestMapping("/api/v1/board")
-public class BoardController {
-    
-    private BoardService boardService;
+import lombok.RequiredArgsConstructor;
 
-    @Autowired
-    public BoardController(BoardService boardService) {
-        this.boardService = boardService;
-    }
+@RestController
+@RequestMapping("/api/v2/board")
+@RequiredArgsConstructor
+public class Board2Controller {
+    
+    private final BoardService boardService;
 
     // 1.게시물 작성 
     @PostMapping("")
     public ResponseEntity<ResponseDto> postBoard(
-        @Valid @RequestBody com.gahyun.board.dto.request.board.PostBoardRequestDto requestBody
+        @AuthenticationPrincipal String userEmail,
+        @Valid @RequestBody PostBoardRequestDto2 requestBody
     ) {
-        ResponseEntity<ResponseDto> response = boardService.postBoard(requestBody);
+        ResponseEntity<ResponseDto> response = boardService.postBoard(userEmail, requestBody);
         return response;
     }
 
@@ -68,17 +70,18 @@ public class BoardController {
     // 5. 특정 게시물 수정 
     @PatchMapping("")
     public ResponseEntity<ResponseDto> patchBoard(
-        @Valid @RequestBody PatchBoardRequestDto requestBody
+        @AuthenticationPrincipal String userEmail,
+        @Valid @RequestBody PatchBoardRequestDto2 requestBody
     ) {
         ResponseEntity<ResponseDto> response = 
-            boardService.patchBoard(requestBody);
+            boardService.patchBoard(userEmail, requestBody);
         return response;
     }
 
     // 6.특정 게시물 삭제 
-    @DeleteMapping("/{userEmail}/{boardNumber}")
+    @DeleteMapping("/{boardNumber}")
     public ResponseEntity<ResponseDto> deleteBoard(
-        @PathVariable("userEmail") String userEmail,
+        @AuthenticationPrincipal String userEmail,
         @PathVariable("boardNumber") Integer boardNumber
     ) {
         ResponseEntity<ResponseDto> response =

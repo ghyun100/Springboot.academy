@@ -19,8 +19,7 @@ public class JwtProvider {
 
     public String create(String email) {
 
-        Date expiredDate = 
-            Date.from(Instant.now().plus(1,ChronoUnit.HOURS));
+        Date expiredDate =  Date.from(Instant.now().plus(1,ChronoUnit.HOURS));
         
         String jwt = 
             Jwts.builder()
@@ -39,7 +38,6 @@ public class JwtProvider {
                 .setSigningKey(SECRET_KEY)
                 .parseClaimsJws(jwt)
                 .getBody();
-
         return claims.getSubject();
     }
 
