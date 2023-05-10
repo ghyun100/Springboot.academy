@@ -17,7 +17,7 @@ public class SampleJob implements Job{
     // 실제 작업이 실행될 메서드
     @Override 
     public void execute(JobExecutionContext context) throws JobExecutionException {
-        System.out.println("Scheduler!!");
+        // System.out.println("Scheduler!!");
     }
     
     // Job Detail 설정 (Job의 메타데이터)
@@ -35,7 +35,7 @@ public class SampleJob implements Job{
     @Bean
     public Trigger trigger(JobDetail jobDetail) {
         CronScheduleBuilder schedule = 
-            CronScheduleBuilder.cronSchedule("* * * * * ?");
+            CronScheduleBuilder.cronSchedule("* * * * * ?"); // 1초마다 실행
 
         return TriggerBuilder.newTrigger()
                 .forJob(jobDetail)
